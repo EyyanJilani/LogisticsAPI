@@ -1,26 +1,14 @@
-const express = require("express");
 const nodemailer = require("nodemailer");
-const bodyParser = require("body-parser");
-const cors = require("cors");
 
-const app = express();
+module.exports = async (req, res) => {
+  if (req.method === "GET") {
+    return res.status(200).send("Submit-form API is live!");
+  }
 
-app.use(cors());
-app.use(bodyParser.json());
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Only POST requests are allowed" });
+  }
 
-app.get("/", (req, res) => {
-  res.send("Hello World"); // Safe fallback
-});
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-app.post("/api/submit-form", (req, res) => {
   const {
     movingFrom,
     movingTo,
@@ -49,6 +37,14 @@ app.post("/api/submit-form", (req, res) => {
     return res.status(400).json({ error: "All fields are required." });
   }
 
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER, // e.g. joeegbert3@gmail.com
+      pass: process.env.EMAIL_PASS, // App password
+    },
+  });
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: [
@@ -58,8 +54,6 @@ app.post("/api/submit-form", (req, res) => {
     ],
     subject: "New Form Submission: Vehicle Moving Details",
     text: `
-      New form submission:
-
       Moving From: ${movingFrom}
       Moving To: ${movingTo}
       Vehicle Year: ${vehicleYear}
@@ -67,19 +61,18 @@ app.post("/api/submit-form", (req, res) => {
       Model: ${model}
       Condition: ${condition}
       Carrier: ${carrier}
-      
+
       Full Name: ${fullName}
       Phone: ${phone}
       Email: ${email}
     `,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return res.status(500).json({ error: "Error sending email." });
-    }
+  try {
+    await transporter.sendMail(mailOptions);
     res.status(200).json({ message: "Form submitted successfully!" });
-  });
-});
-
-module.exports = app;
+  } catch (error) {
+    console.error("Email error:", error);
+    res.status(500).json({ error: "Error sending email." });
+  }
+};
