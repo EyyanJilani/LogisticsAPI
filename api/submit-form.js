@@ -1,6 +1,16 @@
 const nodemailer = require("nodemailer");
 
 module.exports = async (req, res) => {
+  // Allow CORS requests from your frontend
+  res.setHeader("Access-Control-Allow-Origin", "*"); // You can replace "*" with your frontend URL: "http://localhost:3001"
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle preflight OPTIONS request
+  if (req.method === "OPTIONS") {
+    return res.status(200).end(); // Return a successful response for OPTIONS preflight
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST requests are allowed" });
   }
@@ -30,8 +40,8 @@ module.exports = async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: 'joeegbert3@gmail.com', // Set this in your .env file
-      pass: 'ayuc glpv ndte jgva', // Set this in your .env file
+      user: process.env.EMAIL_USER, // Set this in your .env file
+      pass: process.env.EMAIL_PASS, // Set this in your .env file
     },
   });
 
