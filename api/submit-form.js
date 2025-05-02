@@ -40,13 +40,13 @@ module.exports = async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.EMAIL_USER, // Set this in your .env file
-      pass: process.env.EMAIL_PASS, // Set this in your .env file
+      user: 'joeegbert3@gmail.com', // Set this in your .env file
+      pass: 'ayuc glpv ndte jgva', // Set this in your .env file
     },
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_USER, // Set this in your .env file
+    from: 'joeegbert3@gmail.com', // Set this in your .env file
     to: [
       "joeegbert3@gmail.com",
       "info@moveprologistics.com",
