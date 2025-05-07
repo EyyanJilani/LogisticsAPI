@@ -1,14 +1,12 @@
 const nodemailer = require("nodemailer");
 
 module.exports = async (req, res) => {
-  // Allow CORS requests from your frontend
-  res.setHeader("Access-Control-Allow-Origin", "*"); // You can replace "*" with your frontend URL: "http://localhost:3001"
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
-    return res.status(200).end(); // Return a successful response for OPTIONS preflight
+    return res.status(200).end();
   }
 
   if (req.method !== "POST") {
@@ -26,9 +24,9 @@ module.exports = async (req, res) => {
     fullName,
     phone,
     email,
+    companyName,
   } = req.body;
 
-  // Validate the input fields
   if (
     !movingFrom || !movingTo || !vehicleYear || !make || !model ||
     !condition || !carrier || !fullName || !phone || !email
@@ -36,20 +34,24 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: "All fields are required." });
   }
 
-  // Nodemailer configuration
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: 'joeegbert3@gmail.com', // Set this in your .env file
-      pass: 'ayuc glpv ndte jgva', // Set this in your .env file
+      user: 'joeegbert3@gmail.com',
+      pass: 'ayuc glpv ndte jgva',
     },
   });
 
+  // Decide recipient based on fullName
+  const companyEmail = companyName.toLowerCase().includes("OptimalMovers")
+    ? "info@optimalautomovers.com"
+    : "info@moveprologistics.com";
+
   const mailOptions = {
-    from: 'joeegbert3@gmail.com', // Set this in your .env file
+    from: 'joeegbert3@gmail.com',
     to: [
       "joeegbert3@gmail.com",
-      "info@moveprologistics.com",
+      companyEmail,
       "mohammedshahmir48@gmail.com",
     ],
     subject: "New Form Submission: Vehicle Moving Details",
@@ -71,7 +73,6 @@ module.exports = async (req, res) => {
   };
 
   try {
-    // Send the email
     await transporter.sendMail(mailOptions);
     return res.status(200).json({ message: "Form submitted successfully!" });
   } catch (error) {
