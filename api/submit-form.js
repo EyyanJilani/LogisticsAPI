@@ -69,6 +69,7 @@ module.exports = async (req, res) => {
       Full Name: ${fullName}
       Phone: ${phone}
       Email: ${email}
+      Company Name: ${companyName}
     `,
   };
 
